@@ -58,6 +58,7 @@ Sorted by name. The Platforms column lists where each browser runs or is announc
 | Stedding | Chromium (fork) | Windows, macOS | BSD-3-Clause | [stedding.dev](https://stedding.dev/) | [ysalitrynskyi/stedding-browser](https://github.com/ysalitrynskyi/stedding-browser) |
 | Surf | Chromium (Electron) | Windows, macOS, Linux | Apache-2.0 | [deta.surf](https://deta.surf/) | [deta/surf](https://github.com/deta/surf) |
 | Tangent | Chromium (fork) | — | Unknown | [tangent.place](https://tangent.place/) | — |
+| Tarn | WebKit, Chromium | macOS, Windows, Linux | GPL-3.0 | [tarnbrowser.com](https://tarnbrowser.com/) | [Quavon-dev/tarn-browser](https://github.com/Quavon-dev/tarn-browser) |
 | Vane | WebKit | macOS | MIT | [notnaki.github.io/vane](https://notnaki.github.io/vane/) | [notnaki/vane](https://github.com/notnaki/vane) |
 | Viola | Chromium | Windows, macOS, Linux, iOS, Android | Unknown | [violabrowser.com](https://violabrowser.com/) | — |
 | Xelium | Chromium (fork) | macOS | GPL-3.0 | — | [minervanet/xelium-macos](https://github.com/minervanet/xelium-macos) |
