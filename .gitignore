@@ -4,3 +4,4 @@ node_modules/
 dist/
 .idea/
 DEPLOY.md
+public/github.json

@@ -1,10 +1,14 @@
-# Builds the site and publishes it to GitHub Pages on every push to main.
+# Builds the site and publishes it to GitHub Pages on every push to main,
+# and every 30 minutes so GitHub stars and dates stay fresh.
 # One-time setup: Settings › Pages › Source: GitHub Actions.
 name: Deploy
 
 on:
   push:
     branches: [main]
+  schedule:
+    # Odd minutes, away from :00 and other round times when GitHub queues the most scheduled runs.
+    - cron: "13,43 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -30,6 +34,13 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Writes public/github.json (stars and dates) for the build to ship.
+      # The token goes only to this step: the script has no dependencies, so no
+      # third-party npm code can read it. Authenticated, GitHub allows 1,000
+      # requests per hour per repo instead of 60 anonymous.
+      - run: node scripts/github-data.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm build
       - uses: actions/upload-pages-artifact@v5
         with:

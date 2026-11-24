@@ -107,13 +107,28 @@ export function daysUntil(date: Date) {
 }
 
 // For GitHub repos, read stars, the latest push date ("Updated") and the repo
-// creation date ("First created"), all from the same single request per repo.
-// Browsers without a public GitHub repo have no dates. Cached for 6 hours to stay
-// well under GitHub's anonymous rate limit of 60 requests per hour.
-type Cache = { t: number; d: Record<string, { p: string; c: string; s: number }> }
+// creation date ("First created"). The build writes them for every repo to
+// github.json (scripts/github-data.mjs), so visitors make no GitHub API calls.
+// A repo missing from that file (a failed build fetch, or `pnpm dev` before the
+// first build) is fetched live, one request per repo, and cached for 6 hours to
+// stay under GitHub's anonymous rate limit of 60 requests per hour.
+// Browsers without a public GitHub repo have no dates.
+type Repo = { p: string; c: string; s: number }
+type Cache = { t: number; d: Record<string, Repo> }
 const KEY = "gh-repos-v3"
 
+async function built(): Promise<Record<string, Repo>> {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}github.json`, { cache: "no-cache" })
+    if (!res.ok) return {}
+    return ((await res.json()) as { d?: Record<string, Repo> }).d || {}
+  } catch {
+    return {}
+  }
+}
+
 export async function freshen(rows: Browser[]): Promise<Browser[]> {
+  const baked = await built()
   let cache: Cache = { t: NOW, d: {} }
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || "null") as Cache | null
@@ -126,7 +141,7 @@ export async function freshen(rows: Browser[]): Promise<Browser[]> {
     rows.map(async (r) => {
       const slug = r.repo.match(/^https:\/\/github\.com\/([^/]+\/[^/#?]+)/)?.[1]
       if (!slug) return r
-      let v = cache.d[slug]
+      let v = baked[slug] || cache.d[slug]
       if (!v) {
         try {
           const res = await fetch(`https://api.github.com/repos/${slug}`)

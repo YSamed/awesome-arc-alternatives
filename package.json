@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "github-data": "node scripts/github-data.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
