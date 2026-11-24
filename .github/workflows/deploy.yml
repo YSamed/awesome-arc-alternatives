@@ -11,21 +11,21 @@ on:
     - cron: "13,43 * * * *"
   workflow_dispatch:
 
+# Read-only by default. Only the deploy job gets Pages rights, so the build job
+# (and the npm code it runs) never holds a token that can publish the site.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# One deployment at a time. A run already deploying finishes; a newer run waits.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Two jobs, like GitHub's Pages template: the deploy job starts only after the
+  # build job has finished uploading, so deploy-pages always finds the artifact.
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6 # uses the pnpm version from "packageManager" in package.json
@@ -34,7 +34,7 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Writes public/github.json (stars and dates) for the build to ship.
+      # Writes public/github.json (stars, dates, contributors) for the build to ship.
       # The token goes only to this step: the script has no dependencies, so no
       # third-party npm code can read it. Authenticated, GitHub allows 1,000
       # requests per hour per repo instead of 60 anonymous.
@@ -45,5 +45,16 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v5
