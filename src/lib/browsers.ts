@@ -17,6 +17,7 @@ export interface Browser {
   date: string
   created: string // repo creation date, YYYY-MM-DD
   stars: number | null
+  contributors: number | null // GitHub accounts with commits, bots excluded
 }
 
 export const ENGINES: Family[] = ["Chromium", "WebKit", "Gecko", "Mixed", "Other"]
@@ -77,6 +78,7 @@ export function parse(md: string): Browser[] {
       date: "", // filled in live from GitHub
       created: "", // filled in live from GitHub
       stars: null, // filled in live from GitHub
+      contributors: null, // filled in from github.json
     }
   })
 }
@@ -106,14 +108,14 @@ export function daysUntil(date: Date) {
   return Math.ceil((date.getTime() - NOW) / DAY)
 }
 
-// For GitHub repos, read stars, the latest push date ("Updated") and the repo
-// creation date ("First created"). The build writes them for every repo to
+// For GitHub repos, read stars, contributors, the latest push date ("Updated") and
+// the repo creation date ("Created"). The build writes them for every repo to
 // github.json (scripts/github-data.mjs), so visitors make no GitHub API calls.
 // A repo missing from that file (a failed build fetch, or `pnpm dev` before the
-// first build) is fetched live, one request per repo, and cached for 6 hours to
+// first build) is fetched live, one request per repo and without contributors, and cached for 6 hours to
 // stay under GitHub's anonymous rate limit of 60 requests per hour.
 // Browsers without a public GitHub repo have no dates.
-type Repo = { p: string; c: string; s: number }
+type Repo = { p: string; c: string; s: number; n?: number } // n: contributors, build only
 type Cache = { t: number; d: Record<string, Repo> }
 const KEY = "gh-repos-v3"
 
@@ -158,6 +160,7 @@ export async function freshen(rows: Browser[]): Promise<Browser[]> {
         date: v.p || r.date,
         created: v.c || r.created,
         stars: typeof v.s === "number" ? v.s : r.stars,
+        contributors: typeof v.n === "number" ? v.n : r.contributors,
       }
     }),
   )
