@@ -181,10 +181,36 @@ function Timeline() {
   const nowPct = ((from + frac) / times.length) * 100
   const today = new Date(NOW).toLocaleDateString("en-US", { month: "short", day: "numeric" })
 
+  // The "you are here" dot. Desktop: floats over the horizontal line at nowPct.
+  // Phones: sits inside the last reached milestone, frac of the way down to the next
+  // milestone's dot (each item's height is exactly the gap between two dots).
+  const dot = (
+    <span
+      tabIndex={0}
+      role="img"
+      aria-label={`You are here, ${today}`}
+      className="group absolute -left-[7px] size-[13px] cursor-default rounded-full outline-none before:absolute before:-inset-2.5 before:content-[''] focus-visible:ring-2 focus-visible:ring-ring md:left-0 md:-translate-x-1/2 md:-translate-y-1/2"
+      // Kept 10px (centre to centre) from either milestone dot so it never hides one.
+      style={{ top: `clamp(13px, calc(3px + ${frac * 100}%), calc(100% - 7px))` }}
+    >
+      <span className="block size-full rounded-full border-2 border-background bg-warn [--pulse-color:var(--warn)] animate-pulse-ring" />
+      <span className="pointer-events-none absolute top-1/2 left-full z-10 ml-3 -translate-y-1/2 rounded-md bg-foreground px-2 py-0.5 text-[11px] leading-5 font-medium whitespace-nowrap text-background opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 md:top-auto md:bottom-full md:left-1/2 md:mb-2.5 md:ml-0 md:-translate-x-1/2 md:translate-y-0">
+        You are here · {today}
+        <span className="absolute top-1/2 right-full size-1.5 translate-x-1/2 -translate-y-1/2 rotate-45 bg-foreground md:top-full md:right-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2" />
+      </span>
+    </span>
+  )
+
   const items = TIMELINE.map((t, i) => {
     const past = times[i] <= NOW
     return (
-      <li key={t.date} className="relative pb-4 pl-[18px] text-sm text-muted-foreground md:pt-3.5 md:pr-4 md:pb-0 md:pl-0">
+      <li
+        key={t.date}
+        className={cn(
+          "relative pb-4 pl-[18px] text-sm text-muted-foreground md:pt-3.5 md:pr-4 md:pb-0 md:pl-0",
+          showNow && i === from && "pb-12", // phones: room for the dot to move along this stretch
+        )}
+      >
         <span
           className={cn(
             "absolute top-1.5 -left-1 size-[7px] rounded-full bg-faint md:-top-1 md:left-0",
@@ -194,36 +220,25 @@ function Timeline() {
         />
         <time className="mb-0.5 block font-mono text-[13px] font-medium text-foreground">{t.label}</time>
         {t.text}
+        {showNow && i === from && <span className="md:hidden">{dot}</span>}
       </li>
     )
   })
 
-  const now = (
+  const now = showNow && (
     <li
       key="now"
-      className="relative h-4 md:absolute md:left-(--now) md:top-0 md:h-0 md:w-0"
+      className="absolute top-0 left-(--now) hidden h-0 w-0 md:block [&>span]:top-[-0.5px]!"
       style={{ "--now": `${nowPct}%` } as React.CSSProperties}
     >
-      <span
-        tabIndex={0}
-        role="img"
-        aria-label={`You are here, ${today}`}
-        className="group absolute top-px -left-[7px] size-[13px] cursor-default rounded-full outline-none before:absolute before:-inset-2.5 before:content-[''] focus-visible:ring-2 focus-visible:ring-ring md:top-[-0.5px] md:left-0 md:-translate-x-1/2 md:-translate-y-1/2"
-      >
-        <span className="block size-full rounded-full border-2 border-background bg-warn [--pulse-color:var(--warn)] animate-pulse-ring" />
-        <span className="pointer-events-none absolute top-1/2 left-full ml-3 -translate-y-1/2 rounded-md bg-foreground px-2 py-0.5 text-[11px] leading-5 font-medium whitespace-nowrap text-background opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 md:top-auto md:bottom-full md:left-1/2 md:mb-2.5 md:ml-0 md:-translate-x-1/2 md:translate-y-0">
-          You are here · {today}
-          <span className="absolute top-1/2 right-full size-1.5 translate-x-1/2 -translate-y-1/2 rotate-45 bg-foreground md:top-full md:right-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2" />
-        </span>
-      </span>
+      {dot}
     </li>
   )
 
-  // On phones the marker sits in the list between the two milestones; on desktop it floats over the line.
-  const ordered = showNow ? [...items.slice(0, from + 1), now, ...items.slice(from + 1)] : items
   return (
     <ol className="relative mt-11 ml-[3px] grid border-l md:ml-0 md:grid-cols-3 md:border-t md:border-l-0">
-      {ordered}
+      {items}
+      {now}
     </ol>
   )
 }
