@@ -31,7 +31,6 @@ Sorted by name. The Platforms column lists where each browser runs or is announc
 | Argus | WebKit (unconfirmed) | — | Closed | [argusbrowser.io](https://argusbrowser.io/) | — |
 | Arx | Chromium (fork) | macOS | GPL-3.0 | [arxbrowser.net](https://arxbrowser.net/) | [capturecontext/arx-browser](https://github.com/capturecontext/arx-browser) |
 | Aside | Chromium (fork) | Windows, macOS | Closed | [aside.com](https://aside.com/) | — |
-| Aura | WebKit | iOS | MPL-2.0 | — | [doorhinge-apps/Aura-Browser](https://github.com/doorhinge-apps/Aura-Browser) |
 | Bay | Chromium (CEF) + WebKit | macOS | Apache-2.0 | [baybrowser.in](https://baybrowser.in/) | [krishkalaria12/bay](https://github.com/krishkalaria12/bay) |
 | Blanc | Chromium (Electron) | Windows, macOS, Linux, iOS | MIT | [blanc.day](https://blanc.day/) | [bnfy/blanc](https://github.com/bnfy/blanc) |
 | camber | Chromium (Electron) | Windows, macOS, Linux | GPL-3.0 | [yuvrajangadsingh.com/camber](https://www.yuvrajangadsingh.com/camber) | [yuvrajangadsingh/camber](https://github.com/yuvrajangadsingh/camber) |
